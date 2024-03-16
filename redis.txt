@@ -1,0 +1,194 @@
+安装redis
+linux下
+yum install redis
+可能会出现错误，出现错误就输入yum install epel-release
+然后再次安装即可
+
+然后启动redis服务
+redis-server
+
+可以通过ctr+c或者直接关闭终端来关闭redis
+我们在启动一个新的终端来启动一个redis客户端连接redis服务
+
+通过redis-cli启动客户端连接到redis服务，就可以使用redis了
+
+string
+redis中的数据是以键值对存储的
+set key value  //设置某一个键key的值为value
+get key //获取键对应的值value
+del key //删除key对应的键值对
+exists key //判断键key是否存在，存在输出1，不村子啊输出0
+keys * //显示所有的键
+keys *me //查找以me结尾的键
+flushall  //删除所有的键
+redis中的键和值默认是不支持中文的，是以二进制形式存储和显示，如果我们想显示原始中文，我们输入quit命令退出客户端，然后通过redis-cli --raw进行登录，这样再进行get现实的就是原始内容了，就可以显示出中文了
+clear //和linux一样也可以使用clear命令来清屏
+
+键值对还可以设置过期时间
+ttl key  //查看key的过期时间，如果显示-1表示没有设置过期时间，显示-2表示已经过期
+expire key time //对key设置time秒的过期时间
+键过期之后使用keys *进行查看就看不到这些过期的键了
+setex key time value  //设置一个键key ,他的值是value ,设置过期时间为time
+setnx key value //只有当key不存才会创建一个key ,并且设置值为value,返回1
+如果key 不存在也不会改变原始key的值，也就是不做任何改变，同时返回0
+
+
+
+list
+lpush 列表名 a  //表示将字母a插入这个列表的头部
+也可以同时插入多个
+lpush 列表名 c d e
+查看列表
+lrange 列表名字 0 -1 //查看列表，0表示第一个位置，-1表示最后一个位置
+
+当然也可以在尾部插入
+将上面的lpush改为rpush即可
+
+有了插入当然也有删除了
+lpop   列表名字 //表示删除头部元素
+rpop 列表名字 //表示删除尾部元素
+llen 列表名字 //表示获取列表元素个数
+
+lpop 列表名字 数字 //表示从列表头部删除这个数字个数元素
+但是这里出问题了，这是为什么呢，是版本问题，6.2之后的版本才能这样使用
+
+ltrim 列表名字 start stop  //表示只保留该列表从索引start到stop的元素
+
+
+set (无序集合)
+set是无序的，并且不允许存在重复元素
+sadd course redis //表示创建集合course并且添加元素redis到集合中,如果是不存在的元素返回1，否则返回0
+smember course  //查看集合course中的元素
+sismember course redis //查看redis是不是集合course中的元素，是则返回1，不是返回0
+srem course redis //表示移除集合course中的元素redis,移除存在的元素返回1，否则返回0
+
+
+SortedSet(有序集合)，也叫ZSet
+有序集合中和无序结合的区别在于有序集合的元素都会关联一个浮点类型的分数，按照这个分数从小到大排序
+有序集合元素都是唯一的，但是分数不唯一
+zadd 有序集合名称 分数1 集合元素名字1 分数2 集合元素名字2...
+zrange 集合名 start stop  //按照从小到大排序的结果输出成员
+如果还想要输出分数，
+那么执行zrange 集合名 start stop withscores //就可以输出成员的同时输出分数了
+
+zscore 集合名字 成员名字  //查看这个集合中某个成员的分数
+zrank 集合名字 成员名字 //查看这个集合中某个集合的排名   排名从0开始，但是一般我们的排名是从大到小排名的，但是这里是从小到大排名的
+zrevrank 集合名字 成员名字 //拿到的是这个成员的排名，不过这个排名是从大到小排名的
+zrem 集合名字 成员名字  //删除这个集合中的这个成员
+
+
+
+
+哈希(hash)
+hset person key value  //创建一个哈希，并且插入一个键值对<key,value>
+hget person key //查询哈希person中的key的值
+hgetall person //查看哈希person中的所有键值对
+hdel person key //删除哈希person中的key
+hexists person key //查看哈希person中的key是否存在
+hkeys person //查看哈希person中的所有键
+hlen person //查看哈希person中的键值对的数量
+
+
+redis订阅发布
+通过subscribe geekhour //表示订阅geekhour 
+可以开启多个终端同时订阅geekhour这个频道
+然后可以开一个终端发布消息，通过publish geekhout redis //发送了消息redis
+那些订阅了geekhour这个频道的就可以收到发布的消息
+发布订阅功能还有一些局限性，就是消息无法持久化，无法记录历史消息
+
+
+Stream
+Stream是redis5.0版本之后引入的一个新的数据结构，他是一个轻量级的消息队列，解决了消息无法持久化，无法记录历史消息等等
+redis-server --version  //查看redis的版本
+Hyper-v记得打开，否则可能会导致虚拟机用不了
+
+redis默认安装是3点几版本的，怎么进行更新呢
+stream后面再看因为这个是高版本的
+
+
+12.地理空间Geospatial
+是3.2版本之后的一种新特性，提供了一种新的数据结构
+是一种可以存储地理位置信息的数据结构
+geoadd city 经度 维度 城市
+也可以同时添加多个 
+geoadd city 经度 维度 城市  经度 维度 城市...
+
+geopos city 城市名字  //查看这个城市的经度和纬度
+geodist city 城市1 城市2 //查看俩个城市的距离
+上面计算距离默认单位是米，要换算为km,可以在后面加上参数km
+geodist city 城市1  城市2  //查看俩个城市的距离，单位是km
+
+geosearch city frommember shanghai byradius 300 km //计算以上海为圆心，半径300km之内的所有城市，但是我这里用不了这个命令
+
+
+HyperLogLog
+牺牲一定的精度来使得使用的内存更小，用于一些对于精度要求不高的大规模的统计基数问题，也就是统计不同元素个数，同样的元素只会记一次
+
+pfadd course git docker redis  //添加一个hypeLogLog并且加入三个元素git docker redis
+pfcount course   //查看course中有多少个基数
+pfmerge result course course2 //合并course和course2,合并的结果是result
+
+
+位图Bitmap
+位图是字符串string的扩展类型，下标就是偏移量，值只有0和1
+应用非常广泛，可以用来记录用户签到情况，在线状态，有没有点过赞等等
+setbit dianzan 0 1  //表示将位图dianzan的索引0位置设置为1
+getbit dianzan 0 //表示获取位图dianzan的索引0位置的值
+由于位图是字符串(string)的一种扩展类型，所以也可以直接通过字符串的命令来设置位图(bitmap)的值，set dianzan "\xF0"  //\x表示后面是十六进制数，后面的F表示索引0-3的值，后面的0表示索引4-7的值
+bitcount dianzan  //表示获取位图dianzan中1的个数
+bitpos dianzan 0 //表示获取第一个0出现的位置
+bitpos dianzan 1//表示获取位图dianzan中1第一个出现的位置
+
+
+位域bitfield
+可以用于游戏领域
+比如有一个角色，id是角色1，有100块钱等等
+bitfield player:1 set u8 #0 1
+player:1表示角色1，u8表示用一个无符号八位整数表示，#0表示第一个位置，1表示这个位置的值为1
+
+bitfield player:1 get u8 #0
+各个词意义同上，但是这里是获取某个角色的某个值，上面是设置某个角色的某个值
+
+bitfield player:1 set u32 #1 100
+表示当前角色1拥有100块钱，设置在第二个位置上，
+bitfield player:1 incrby u32 #1 100
+表示杀死一个怪物走出新手村，增加100金币，位置2的值增加100
+
+
+
+redis中的事务
+关系型数据路，例如oracle中的事务都是原子操作，也就是事务中的所有操作要么全部成功要么全部失败，但是redis中的事务并不能保证这一点
+但是redis中的事务可以保证以下条件：
+1.在发送exec命令之前所有的命令都会被放入到一个队列中缓存起来,不会立即执行
+2.收到exec命令，事务中的命令会开始执行，事务中的某个命令执行失败并不会影响到其他命令的执行，就算某个命令失败了，其他命令还是会继续执行
+3.事务执行的过程中，其他客户端发送的命令并不会被插入到事务的命令序列中
+multi  //开启一个事务
+incr k3  //将k3的值加1，如果k3不是数值类型就会报错，
+exec表示提交事务，事务中的命令开始执行
+
+
+redis数据持久化
+有俩种方式
+1.RDB(redis database)
+在指定时间间隔内将内存中的数据快照写入磁盘，是某一个时间点上数据的完整副本，手动输入save命令来实现持久化，或者通过redis.conf进行配置
+快照文件有一个缺点，就是某一次快照之后宕机了，那么后面的快照都会丢失，所以RDB更适合用来备份
+2.AOF(Append only file)
+
+//主从复制
+
+//哨兵模式
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
